@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小学生岩石观察记录系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Segoe UI', sans-serif;
+        }
+
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #6bbf59;
+            --accent: #ff9e4a;
+            --light: #f5f7fa;
+            --dark: #2c3e50;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa 0%, #bbdefb 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: var(--dark);
+            font-size: 1.2rem;
+        }
+
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background-color: white;
+            border: none;
+            border-radius: 10px 10px 0 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+            margin: 0 5px;
+        }
+
+        .tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            min-height: 500px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 学生界面样式 */
+        .student-form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-title i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .instruction {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            color: var(--dark);
+            background-color: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .observation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            background-color: var(--light);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .observation-table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .observation-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .observation-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .observation-table input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 15px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #ff8a2a;
+            transform: scale(1.05);
+        }
+
+        /* 教师界面样式 */
+        .teacher-dashboard {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .teacher-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .teacher-btn {
+            padding: 10px 20px;
+            background-color: var(--light);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .teacher-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .refresh-btn {
+            color: var(--primary);
+        }
+
+        .clear-btn {
+            color: #e74c3c;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .analysis-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .analysis-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .analysis-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .common-items, .unique-items {
+            margin-top: 15px;
+        }
+
+        .item-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .common-item {
+            background-color: var(--secondary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1rem;
+        }
+
+        .unique-item {
+            background-color: var(--accent);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1rem;
+        }
+
+        .records-list {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .record-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .record-item:last-child {
+            border-bottom: none;
+        }
+
+        .record-methods, .record-aspects {
+            margin: 10px 0;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .stats-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .analysis-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+            
+            .teacher-controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-gem"></i> 岩石观察记录系统</h1>
+            <p class="subtitle">探索岩石的奥秘，记录我们的发现</p>
+        </header>
+
+        <div class="tab-container">
+            <button class="tab active" data-tab="student">学生填写</button>
+            <button class="tab" data-tab="teacher">教师查看</button>
+        </div>
+
+        <!-- 学生填写界面 -->
+        <div id="student" class="tab-content active">
+            <form class="student-form" id="observation-form">
+                <h2 class="form-title"><i class="fas fa-search"></i> 我的岩石观察记录</h2>
+                <div class="instruction">
+                    请填写你打算用什么方法观察岩石的什么特征
+                </div>
+                
+                <table class="observation-table">
+                    <thead>
+                        <tr>
+                            <th>观察方法</th>
+                            <th>观察方面</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input type="text" id="method1" placeholder="用什么方法" required>
+                            </td>
+                            <td>
+                                <input type="text" id="aspect1" placeholder="观察什么特征" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="text" id="method2" placeholder="用什么方法">
+                            </td>
+                            <td>
+                                <input type="text" id="aspect2" placeholder="观察什么特征">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="text" id="method3" placeholder="用什么方法">
+                            </td>
+                            <td>
+                                <input type="text" id="aspect3" placeholder="观察什么特征">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="text" id="method4" placeholder="用什么方法">
+                            </td>
+                            <td>
+                                <input type="text" id="aspect4" placeholder="观察什么特征">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="submit" class="submit-btn">提交观察记录</button>
+            </form>
+        </div>
+
+        <!-- 教师查看界面 -->
+        <div id="teacher" class="tab-content">
+            <div class="teacher-dashboard">
+                <div class="teacher-controls">
+                    <button class="teacher-btn refresh-btn" id="refresh-btn">
+                        <i class="fas fa-sync-alt"></i> 刷新数据
+                    </button>
+                    <button class="teacher-btn clear-btn" id="clear-btn">
+                        <i class="fas fa-trash-alt"></i> 清空数据
+                    </button>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-title">总提交数</div>
+                        <div class="stat-value" id="total-submissions">0</div>
+                        <div class="stat-desc">学生观察记录</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">常用方法</div>
+                        <div class="stat-value" id="common-methods-count">0</div>
+                        <div class="stat-desc">共性观察方法</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">常用方面</div>
+                        <div class="stat-value" id="common-aspects-count">0</div>
+                        <div class="stat-desc">共性观察方面</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">今日提交</div>
+                        <div class="stat-value" id="today-submissions">0</div>
+                        <div class="stat-desc">观察记录</div>
+                    </div>
+                </div>
+
+                <div class="analysis-container">
+                    <div class="analysis-card">
+                        <h3 class="analysis-title">观察方法分析</h3>
+                        <div class="common-items">
+                            <h4>共性方法</h4>
+                            <div class="item-list" id="common-methods">
+                                <!-- 共性方法将通过JS动态生成 -->
+                            </div>
+                        </div>
+                        <div class="unique-items">
+                            <h4>个性方法</h4>
+                            <div class="item-list" id="unique-methods">
+                                <!-- 个性方法将通过JS动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analysis-card">
+                        <h3 class="analysis-title">观察方面分析</h3>
+                        <div class="common-items">
+                            <h4>共性方面</h4>
+                            <div class="item-list" id="common-aspects">
+                                <!-- 共性方面将通过JS动态生成 -->
+                            </div>
+                        </div>
+                        <div class="unique-items">
+                            <h4>个性方面</h4>
+                            <div class="item-list" id="unique-aspects">
+                                <!-- 个性方面将通过JS动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="records-list">
+                    <h3 class="analysis-title">学生观察记录详情</h3>
+                    <div id="records-container">
+                        <!-- 记录将通过JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换标签页功能
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // 移除所有标签和内容的active类
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // 为当前标签和对应内容添加active类
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+                
+                // 如果是教师标签，更新统计数据
+                if (tab.dataset.tab === 'teacher') {
+                    updateTeacherDashboard();
+                }
+            });
+        });
+
+        // 表单提交功能
+        document.getElementById('observation-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const methods = [
+                document.getElementById('method1').value.trim(),
+                document.getElementById('method2').value.trim(),
+                document.getElementById('method3').value.trim(),
+                document.getElementById('method4').value.trim()
+            ].filter(method => method !== '');
+            
+            const aspects = [
+                document.getElementById('aspect1').value.trim(),
+                document.getElementById('aspect2').value.trim(),
+                document.getElementById('aspect3').value.trim(),
+                document.getElementById('aspect4').value.trim()
+            ].filter(aspect => aspect !== '');
+            
+            // 验证数据
+            if (methods.length === 0) {
+                alert('请至少填写一种观察方法！');
+                return;
+            }
+            
+            if (aspects.length === 0) {
+                alert('请至少填写一个观察方面！');
+                return;
+            }
+            
+            // 创建记录对象
+            const record = {
+                id: Date.now(),
+                methods: methods,
+                aspects: aspects,
+                date: new Date().toLocaleDateString('zh-CN')
+            };
+            
+            // 保存记录到localStorage
+            saveRecord(record);
+            
+            // 重置表单
+            this.reset();
+            
+            // 显示成功消息
+            alert('提交成功！你的观察记录已保存。');
+        });
+
+        // 保存记录到localStorage
+        function saveRecord(record) {
+            let records = JSON.parse(localStorage.getItem('rockObservationRecords') || '[]');
+            records.push(record);
+            localStorage.setItem('rockObservationRecords', JSON.stringify(records));
+        }
+
+        // 获取所有记录
+        function getRecords() {
+            return JSON.parse(localStorage.getItem('rockObservationRecords') || '[]');
+        }
+
+        // 清空所有记录
+        function clearAllRecords() {
+            if (confirm('确定要清空所有学生提交的记录吗？此操作不可恢复！')) {
+                localStorage.removeItem('rockObservationRecords');
+                updateTeacherDashboard();
+                alert('所有记录已清空！');
+            }
+        }
+
+        // 刷新数据
+        function refreshData() {
+            updateTeacherDashboard();
+            alert('数据已刷新！');
+        }
+
+        // 更新教师仪表板
+        function updateTeacherDashboard() {
+            const records = getRecords();
+            
+            // 如果没有数据，显示提示信息
+            if (records.length === 0) {
+                document.querySelector('.teacher-dashboard').innerHTML = `
+                    <div class="teacher-controls">
+                        <button class="teacher-btn refresh-btn" id="refresh-btn">
+                            <i class="fas fa-sync-alt"></i> 刷新数据
+                        </button>
+                        <button class="teacher-btn clear-btn" id="clear-btn">
+                            <i class="fas fa-trash-alt"></i> 清空数据
+                        </button>
+                    </div>
+                    <div class="no-data">
+                        <i class="fas fa-clipboard-list" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                        <p>暂无学生提交的观察记录</p>
+                        <p style="margin-top: 10px; font-size: 1rem;">请切换到学生界面填写观察记录</p>
+                    </div>
+                `;
+                
+                // 重新绑定按钮事件
+                document.getElementById('refresh-btn').addEventListener('click', refreshData);
+                document.getElementById('clear-btn').addEventListener('click', clearAllRecords);
+                return;
+            }
+            
+            // 更新统计卡片
+            document.getElementById('total-submissions').textContent = records.length;
+            document.getElementById('today-submissions').textContent = getTodaySubmissions(records);
+            
+            // 分析方法和方面
+            const { commonMethods, uniqueMethods, commonAspects, uniqueAspects } = analyzeRecords(records);
+            
+            document.getElementById('common-methods-count').textContent = commonMethods.length;
+            document.getElementById('common-aspects-count').textContent = commonAspects.length;
+            
+            // 更新分析结果
+            updateAnalysisResults(commonMethods, uniqueMethods, commonAspects, uniqueAspects);
+            
+            // 更新记录列表
+            updateRecordsList(records);
+        }
+
+        // 获取今日提交数
+        function getTodaySubmissions(records) {
+            const today = new Date().toLocaleDateString('zh-CN');
+            return records.filter(record => record.date === today).length;
+        }
+
+        // 分析记录，区分共性和个性答案
+        function analyzeRecords(records) {
+            // 收集所有方法和方面
+            const allMethods = [];
+            const allAspects = [];
+            
+            records.forEach(record => {
+                allMethods.push(...record.methods);
+                allAspects.push(...record.aspects);
+            });
+            
+            // 统计词频
+            const methodCounts = countItems(allMethods);
+            const aspectCounts = countItems(allAspects);
+            
+            // 区分共性和个性（出现3次及以上为共性）
+            const commonMethods = Object.entries(methodCounts)
+                .filter(([_, count]) => count >= 3)
+                .map(([item, count]) => ({ item, count }));
+                
+            const uniqueMethods = Object.entries(methodCounts)
+                .filter(([_, count]) => count < 3)
+                .map(([item, count]) => ({ item, count }));
+                
+            const commonAspects = Object.entries(aspectCounts)
+                .filter(([_, count]) => count >= 3)
+                .map(([item, count]) => ({ item, count }));
+                
+            const uniqueAspects = Object.entries(aspectCounts)
+                .filter(([_, count]) => count < 3)
+                .map(([item, count]) => ({ item, count }));
+            
+            return {
+                commonMethods,
+                uniqueMethods,
+                commonAspects,
+                uniqueAspects
+            };
+        }
+
+        // 统计项目出现次数
+        function countItems(items) {
+            const counts = {};
+            
+            items.forEach(item => {
+                // 标准化项目（去除前后空格，转为小写）
+                const normalized = item.trim().toLowerCase();
+                counts[normalized] = (counts[normalized] || 0) + 1;
+            });
+            
+            return counts;
+        }
+
+        // 更新分析结果
+        function updateAnalysisResults(commonMethods, uniqueMethods, commonAspects, uniqueAspects) {
+            // 更新方法分析
+            const commonMethodsContainer = document.getElementById('common-methods');
+            commonMethodsContainer.innerHTML = '';
+            
+            if (commonMethods.length === 0) {
+                commonMethodsContainer.innerHTML = '<p style="color: #666; text-align: center;">暂无共性方法</p>';
+            } else {
+                commonMethods.forEach(method => {
+                    const methodElement = document.createElement('div');
+                    methodElement.className = 'common-item';
+                    methodElement.textContent = `${method.item} (${method.count})`;
+                    commonMethodsContainer.appendChild(methodElement);
+                });
+            }
+            
+            const uniqueMethodsContainer = document.getElementById('unique-methods');
+            uniqueMethodsContainer.innerHTML = '';
+            
+            if (uniqueMethods.length === 0) {
+                uniqueMethodsContainer.innerHTML = '<p style="color: #666; text-align: center;">暂无个性方法</p>';
+            } else {
+                uniqueMethods.forEach(method => {
+                    const methodElement = document.createElement('div');
+                    methodElement.className = 'unique-item';
+                    methodElement.textContent = `${method.item} (${method.count})`;
+                    uniqueMethodsContainer.appendChild(methodElement);
+                });
+            }
+            
+            // 更新方面分析
+            const commonAspectsContainer = document.getElementById('common-aspects');
+            commonAspectsContainer.innerHTML = '';
+            
+            if (commonAspects.length === 0) {
+                commonAspectsContainer.innerHTML = '<p style="color: #666; text-align: center;">暂无共性方面</p>';
+            } else {
+                commonAspects.forEach(aspect => {
+                    const aspectElement = document.createElement('div');
+                    aspectElement.className = 'common-item';
+                    aspectElement.textContent = `${aspect.item} (${aspect.count})`;
+                    commonAspectsContainer.appendChild(aspectElement);
+                });
+            }
+            
+            const uniqueAspectsContainer = document.getElementById('unique-aspects');
+            uniqueAspectsContainer.innerHTML = '';
+            
+            if (uniqueAspects.length === 0) {
+                uniqueAspectsContainer.innerHTML = '<p style="color: #666; text-align: center;">暂无个性方面</p>';
+            } else {
+                uniqueAspects.forEach(aspect => {
+                    const aspectElement = document.createElement('div');
+                    aspectElement.className = 'unique-item';
+                    aspectElement.textContent = `${aspect.item} (${aspect.count})`;
+                    uniqueAspectsContainer.appendChild(aspectElement);
+                });
+            }
+        }
+
+        // 更新记录列表
+        function updateRecordsList(records) {
+            const container = document.getElementById('records-container');
+            container.innerHTML = '';
+            
+            if (records.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 20px;">暂无学生提交记录</p>';
+                return;
+            }
+            
+            // 按时间倒序排列
+            records.sort((a, b) => b.id - a.id);
+            
+            records.forEach(record => {
+                const recordElement = document.createElement('div');
+                recordElement.className = 'record-item';
+                
+                recordElement.innerHTML = `
+                    <div class="record-date"><strong>提交时间:</strong> ${record.date}</div>
+                    <div class="record-methods"><strong>观察方法:</strong> ${record.methods.join('、')}</div>
+                    <div class="record-aspects"><strong>观察方面:</strong> ${record.aspects.join('、')}</div>
+                `;
+                
+                container.appendChild(recordElement);
+            });
+        }
+
+        // 页面加载时初始化事件监听
+        document.addEventListener('DOMContentLoaded', function() {
+            // 绑定教师端按钮事件
+            document.getElementById('refresh-btn').addEventListener('click', refreshData);
+            document.getElementById('clear-btn').addEventListener('click', clearAllRecords);
+        });
+    </script>
+</body>
+</html>
